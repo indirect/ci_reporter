@@ -206,10 +206,8 @@ module CI
           name_or_example.full_description
         elsif name_or_example.respond_to?(:metadata)
           name_or_example.metadata[:example_group][:full_description]
-        else
-          "UNKNOWN"
         end
-        desc_for.gsub(/\./, " ")
+        desc_for && desc_for.gsub(/\./, " ") || "UNKNOWN"
       end
 
       def write_report
