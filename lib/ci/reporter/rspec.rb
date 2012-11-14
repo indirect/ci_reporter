@@ -152,7 +152,7 @@ module CI
         name = description_for(args[0])
         spec = @suite.testcases.last
         spec.finish
-        spec.classname = classname_for(name_or_example)
+        spec.classname = classname_for(args[0])
         spec.name = "#{name} (PENDING)"
         spec.skipped = true
       end
