@@ -193,7 +193,8 @@ module CI
           md[:full_description]
         elsif name_or_example.respond_to?(:full_description)
           test_name = description_for(name_or_example)
-          name_or_example.full_description.gsub(/ #{test_name}$/, '')
+          class_name = name_or_example.full_description
+          class_name.gsub(/\./, " ").gsub(/ #{test_name}$/, '')
         else
           "UNKNOWN"
         end
