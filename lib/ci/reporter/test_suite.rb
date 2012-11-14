@@ -111,7 +111,7 @@ module CI
     end
 
     # Structure used to represent an individual test case.  Used to time the test and store the result.
-    class TestCase < Struct.new(:name, :time, :assertions)
+    class TestCase < Struct.new(:name, :time, :assertions, :classname)
       attr_accessor :failures
       attr_accessor :skipped
 

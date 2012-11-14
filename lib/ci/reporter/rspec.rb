@@ -104,13 +104,13 @@ module CI
       # Compatibility with rspec < 1.2.4
       def add_example_group(example_group)
         @formatter.add_example_group(example_group)
-        new_suite(description_for(example_group))
+        new_suite(suite_for(example_group))
       end
 
       # rspec >= 1.2.4
       def example_group_started(example_group)
         @formatter.example_group_started(example_group)
-        new_suite(description_for(example_group))
+        new_suite(suite_for(example_group))
       end
 
       def example_started(name_or_example)
@@ -134,6 +134,7 @@ module CI
 
         spec = @suite.testcases.last
         spec.finish
+        spec.classname = classname_for(name_or_example)
         spec.name = description_for(name_or_example)
         spec.failures << failure
       end
@@ -142,6 +143,7 @@ module CI
         @formatter.example_passed(name_or_example)
         spec = @suite.testcases.last
         spec.finish
+        spec.classname = classname_for(name_or_example)
         spec.name = description_for(name_or_example)
       end
 
@@ -150,6 +152,7 @@ module CI
         name = description_for(args[0])
         spec = @suite.testcases.last
         spec.finish
+        spec.classname = classname_for(name_or_example)
         spec.name = "#{name} (PENDING)"
         spec.skipped = true
       end
@@ -170,16 +173,43 @@ module CI
       end
 
       private
-      def description_for(name_or_example)
-        if name_or_example.respond_to?(:full_description)
-          name_or_example.full_description
-        elsif name_or_example.respond_to?(:metadata)
-          name_or_example.metadata[:example_group][:full_description]
+
+      def suite_for(name_or_example)
+        if name_or_example.respond_to?(:metadata)
+          md = name_or_example.metadata
+          md = md[:example_group] while md[:example_group]
+          md[:description_args].first
         elsif name_or_example.respond_to?(:description)
           name_or_example.description
         else
           "UNKNOWN"
         end
+      end
+
+      def classname_for(name_or_example)
+        if name_or_example.respond_to?(:metadata)
+          md = name_or_example.metadata
+          md = md[:example_group] while md[:example_group][:example_group]
+          md[:full_description]
+        elsif name_or_example.respond_to?(:full_description)
+          test_name = description_for(name_or_example)
+          name_or_example.full_description.gsub(/ #{test_name}$/, '')
+        else
+          "UNKNOWN"
+        end
+      end
+
+      def description_for(name_or_example)
+        desc_for = if name_or_example.respond_to?(:description)
+          name_or_example.description
+        elsif name_or_example.respond_to?(:full_description)
+          name_or_example.full_description
+        elsif name_or_example.respond_to?(:metadata)
+          name_or_example.metadata[:example_group][:full_description]
+        else
+          "UNKNOWN"
+        end
+        desc_for.gsub(/\./, " ")
       end
 
       def write_report
