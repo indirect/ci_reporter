@@ -149,11 +149,10 @@ module CI
 
       def example_pending(*args)
         @formatter.example_pending(*args)
-        name = description_for(args[0])
         spec = @suite.testcases.last
         spec.finish
         spec.classname = classname_for(args[0])
-        spec.name = "#{name} (PENDING)"
+        spec.name = "#{description_for(args[0])} (PENDING)"
         spec.skipped = true
       end
 
@@ -190,14 +189,16 @@ module CI
         if name_or_example.respond_to?(:metadata)
           md = name_or_example.metadata
           md = md[:example_group] while md[:example_group][:example_group]
-          md[:full_description]
+          class_name = md[:full_description]
         elsif name_or_example.respond_to?(:full_description)
-          test_name = description_for(name_or_example)
           class_name = name_or_example.full_description
-          class_name.gsub(/\./, " ").gsub(/ #{test_name}$/, '')
         else
           "UNKNOWN"
         end
+        class_name.gsub!(/ #{description_for(name_or_example)}$/, '')
+        class_name.gsub!(/\./, '_')
+        class_name.gsub!(/^(#{suite_for(name_or_example)}) /, '\1.')
+        class_name
       end
 
       def description_for(name_or_example)
@@ -207,8 +208,10 @@ module CI
           name_or_example.full_description
         elsif name_or_example.respond_to?(:metadata)
           name_or_example.metadata[:example_group][:full_description]
+        else
+          "UNKNOWN"
         end
-        desc_for && desc_for.gsub(/\./, " ") || "UNKNOWN"
+        desc_for
       end
 
       def write_report
