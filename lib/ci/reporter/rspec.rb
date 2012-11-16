@@ -177,7 +177,7 @@ module CI
         if name_or_example.respond_to?(:metadata)
           md = name_or_example.metadata
           md = md[:example_group] while md[:example_group]
-          md[:description_args].first
+          md[:description_args].first.to_s
         elsif name_or_example.respond_to?(:description)
           name_or_example.description
         else
