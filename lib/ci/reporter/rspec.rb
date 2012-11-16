@@ -198,7 +198,7 @@ module CI
         class_name.
           gsub(/ #{Regexp.escape(description_for(name_or_example))}$/, '').
           gsub(/\./, '_').
-          gsub(/^(#{Regexp.escape(suite_for(name_or_example))}) /, '\1.')
+          gsub(/^(#{Regexp.escape(suite_for(name_or_example))})[ #.]/, '\1.')
       end
 
       def description_for(name_or_example)
