@@ -195,10 +195,10 @@ module CI
         else
           "UNKNOWN"
         end
-        class_name.gsub!(/ #{description_for(name_or_example)}$/, '')
-        class_name.gsub!(/\./, '_')
-        class_name.gsub!(/^(#{suite_for(name_or_example)}) /, '\1.')
-        class_name
+        class_name.
+          gsub(/ #{Regexp.escape(description_for(name_or_example))}$/, '').
+          gsub(/\./, '_').
+          gsub(/^(#{Regexp.escape(suite_for(name_or_example))}) /, '\1.')
       end
 
       def description_for(name_or_example)
