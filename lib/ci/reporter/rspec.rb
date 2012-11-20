@@ -174,15 +174,14 @@ module CI
       private
 
       def suite_for(name_or_example)
-        if name_or_example.respond_to?(:metadata)
+        suite_for = if name_or_example.respond_to?(:metadata)
           md = name_or_example.metadata
           md = md[:example_group] while md[:example_group]
           md[:description_args].first.to_s
         elsif name_or_example.respond_to?(:description)
           name_or_example.description
-        else
-          "UNKNOWN"
         end
+        suite_for || "UNKNOWN"
       end
 
       def classname_for(name_or_example)
@@ -192,13 +191,16 @@ module CI
           class_name = md[:full_description]
         elsif name_or_example.respond_to?(:full_description)
           class_name = name_or_example.full_description
+        end
+
+        if class_name
+          class_name.
+            gsub(/ #{Regexp.escape(description_for(name_or_example))}$/, '').
+            gsub(/\./, '_').
+            gsub(/^(#{Regexp.escape(suite_for(name_or_example))})[ #.]/, '\1.')
         else
           "UNKNOWN"
         end
-        class_name.
-          gsub(/ #{Regexp.escape(description_for(name_or_example))}$/, '').
-          gsub(/\./, '_').
-          gsub(/^(#{Regexp.escape(suite_for(name_or_example))})[ #.]/, '\1.')
       end
 
       def description_for(name_or_example)
@@ -208,10 +210,8 @@ module CI
           name_or_example.full_description
         elsif name_or_example.respond_to?(:metadata)
           name_or_example.metadata[:example_group][:full_description]
-        else
-          "UNKNOWN"
         end
-        desc_for
+        desc_for || "UNKNOWN"
       end
 
       def write_report
